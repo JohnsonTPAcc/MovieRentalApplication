@@ -1,0 +1,84 @@
+﻿@page "/bookings/edit/{BookingId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Edit Booking</h3>
+<hr />
+
+@if (booking == null)
+{
+    <div class="alert alert-warning">Loading booking...</div>
+}
+else
+{
+    <EditForm Model="@booking" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="dateOut">Date Out:</label>
+            <InputDate id="dateOut" @bind-Value="booking.DateOut" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="dateIn">Date In:</label>
+            <InputDate id="dateIn" @bind-Value="booking.DateIn" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="movie">Movie:</label>
+            <InputSelect id="movie" @bind-Value="booking.MovieId" class="form-control">
+                <option value="">Select Movie</option>
+                @foreach (var movie in movies)
+                {
+                    <option value="@movie.Id">@movie.Title</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label for="customer">Customer:</label>
+            <InputSelect id="customer" @bind-Value="booking.CustomerId" class="form-control">
+                <option value="">Select Customer</option>
+                @foreach (var customer in customers)
+                {
+                    <option value="@customer.Id">@customer.FirstName @customer.LastName</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <BackToList Target="bookings" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int BookingId { get; set; }
+
+    private Booking? booking;
+    private List<Movie>? movies;
+    private List<Customer>? customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        booking = await _client.GetFromJsonAsync<Booking>($"{Endpoints.BookingsEndpoint}/{BookingId}");
+        movies = await _client.GetFromJsonAsync<List<Movie>>(Endpoints.MoviesEndpoint);
+        customers = await _client.GetFromJsonAsync<List<Customer>>(Endpoints.CustomersEndpoint);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await _client.PutAsJsonAsync($"{Endpoints.BookingsEndpoint}/{booking.Id}", booking);
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/bookings");
+        }
+        else
+        {
+            // Handle errors here, such as displaying an error message
+        }
+    }
+}

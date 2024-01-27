@@ -1,0 +1,110 @@
+﻿@page "/movies/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Create new Movies</h3>
+<hr />
+<br />
+<EditForm Model="@movie" OnValidSubmit="CreateMovie">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Director:</label>
+        <div>
+            <InputSelect @bind-Value="movie.DirectorId" class="form-control">
+                <option value="">-- Select Director --</option>
+                @if (Directors != null)
+                {
+                    foreach (var director in Directors)
+                    {
+                        <option value="@director.Id">@director.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => movie.DirectorId)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Category:</label>
+        <div>
+            <InputSelect @bind-Value="movie.CategoryId" class="form-control">
+                <option value="">-- Select Category --</option>
+                @if (Categories != null)
+                {
+                    foreach (var category in Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => movie.CategoryId)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Rating:</label>
+        <div>
+            <InputSelect @bind-Value="movie.RatingId" class="form-control">
+                <option value="">-- Select Rating --</option>
+                @if (Ratings != null)
+                {
+                    foreach (var rating in Ratings)
+                    {
+                        <option value="@rating.Id">@rating.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => movie.RatingId)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Title:</label>
+        <div>
+            <InputText @bind-Value="movie.Title" class="form-control" />
+            <ValidationMessage For="@(() => movie.Title)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Description:</label>
+        <div>
+            <InputTextArea @bind-Value="movie.Description" class="form-control" rows="3" />
+            <ValidationMessage For="@(() => movie.Description)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Daily Rate: </label>
+        <div>
+            <InputNumber @bind-Value="@movie.RentalRate" class="form-control" />
+            <ValidationMessage For="@(() => movie.RentalRate)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Create</button>
+</EditForm>
+
+
+@code {
+    Movie movie = new Movie();
+
+    private IList<Director>? Directors;
+    private IList<Category>? Categories;
+    private IList<Rating>? Ratings;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Directors = await _client.GetFromJsonAsync<List<Director>>($"{Endpoints.DirectorsEndpoint}");
+        Categories = await _client.GetFromJsonAsync<List<Category>>($"{Endpoints.CategoryEndpoint}");
+        Ratings = await _client.GetFromJsonAsync<List<Rating>>($"{Endpoints.RatingsEndpoint}");
+    }
+
+    private async Task CreateMovie()
+    {
+        await _client.PostAsJsonAsync(Endpoints.MoviesEndpoint, movie);
+        _navManager.NavigateTo("/movies");
+    }
+
+}

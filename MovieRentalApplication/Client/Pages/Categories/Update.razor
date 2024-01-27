@@ -1,0 +1,55 @@
+﻿@page "/categories/edit/{CategoryId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Edit Category</h3>
+<hr />
+<br />
+
+@if (category == null)
+{
+    <div class="alert alert-warning">Loading category...</div>
+}
+else
+{
+    <EditForm Model="@category" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <InputText id="name" @bind-Value="category.Name" class="form-control" />
+            <ValidationMessage For="@(() => category.Name)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <BackToList Target="categories" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int CategoryId { get; set; }
+
+    private Category? category;
+
+    protected override async Task OnInitializedAsync()
+    {
+        category = await _client.GetFromJsonAsync<Category>($"{Endpoints.CategoryEndpoint}/{CategoryId}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await _client.PutAsJsonAsync($"{Endpoints.CategoryEndpoint}/{category.Id}", category);
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/categories");
+        }
+        else
+        {
+            // Handle errors here
+        }
+    }
+}

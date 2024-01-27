@@ -1,0 +1,54 @@
+﻿@page "/directors/edit/{DirectorId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Edit Director</h3>
+<hr />
+
+@if (director == null)
+{
+    <div class="alert alert-warning">Loading director...</div>
+}
+else
+{
+    <EditForm Model="@director" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Director Name:</label>
+            <InputText id="name" @bind-Value="director.Name" class="form-control" />
+            <ValidationMessage For="@(() => director.Name)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <BackToList Target="directors" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int DirectorId { get; set; }
+
+    private Director? director;
+
+    protected override async Task OnInitializedAsync()
+    {
+        director = await _client.GetFromJsonAsync<Director>($"{Endpoints.DirectorsEndpoint}/{DirectorId}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await _client.PutAsJsonAsync($"{Endpoints.DirectorsEndpoint}/{director.Id}", director);
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/directors");
+        }
+        else
+        {
+            // Handle errors here, such as displaying an error message
+        }
+    }
+}

@@ -1,0 +1,54 @@
+﻿@page "/ratings/edit/{RatingId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Edit Rating</h3>
+<hr />
+
+@if (rating == null)
+{
+    <div class="alert alert-warning">Loading rating...</div>
+}
+else
+{
+    <EditForm Model="@rating" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Rating Name:</label>
+            <InputText id="name" @bind-Value="rating.Name" class="form-control" />
+            <ValidationMessage For="@(() => rating.Name)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <BackToList Target="ratings" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int RatingId { get; set; }
+
+    private Rating? rating;
+
+    protected override async Task OnInitializedAsync()
+    {
+        rating = await _client.GetFromJsonAsync<Rating>($"{Endpoints.RatingsEndpoint}/{RatingId}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await _client.PutAsJsonAsync($"{Endpoints.RatingsEndpoint}/{rating.Id}", rating);
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/ratings");
+        }
+        else
+        {
+            // Handle errors here
+        }
+    }
+}

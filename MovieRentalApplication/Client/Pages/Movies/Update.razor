@@ -1,0 +1,102 @@
+﻿@page "/movies/edit/{MovieId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Edit Movie</h3>
+<hr />
+
+@if (movie == null)
+{
+    <div class="alert alert-warning">Loading movie...</div>
+}
+else
+{
+    <EditForm Model="@movie" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <InputText id="title" @bind-Value="movie.Title" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <InputTextArea id="description" @bind-Value="movie.Description" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="director">Director:</label>
+            <InputSelect id="director" @bind-Value="movie.DirectorId" class="form-control">
+                <option value="0">Select Director</option>
+                @foreach (var director in directors)
+                {
+                    <option value="@director.Id">@director.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <InputSelect id="category" @bind-Value="movie.CategoryId" class="form-control">
+                <option value="0">Select Category</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label for="rating">Rating:</label>
+            <InputSelect id="rating" @bind-Value="movie.RatingId" class="form-control">
+                <option value="0">Select Rating</option>
+                @foreach (var rating in ratings)
+                {
+                    <option value="@rating.Id">@rating.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label for="rentalRate">Rental Rate:</label>
+            <InputNumber id="rentalRate" @bind-Value="movie.RentalRate" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <BackToList Target="movies" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int MovieId { get; set; }
+
+    private Movie? movie;
+    private IList<Director> directors;
+    private IList<Category> categories;
+    private IList<Rating> ratings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        movie = await _client.GetFromJsonAsync<Movie>($"{Endpoints.MoviesEndpoint}/{MovieId}");
+        directors = await _client.GetFromJsonAsync<List<Director>>(Endpoints.DirectorsEndpoint);
+        categories = await _client.GetFromJsonAsync<List<Category>>(Endpoints.CategoryEndpoint);
+        ratings = await _client.GetFromJsonAsync<List<Rating>>(Endpoints.RatingsEndpoint);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await _client.PutAsJsonAsync($"{Endpoints.MoviesEndpoint}/{movie.Id}", movie);
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/movies");
+        }
+        else
+        {
+            // Handle errors here
+        }
+    }
+}

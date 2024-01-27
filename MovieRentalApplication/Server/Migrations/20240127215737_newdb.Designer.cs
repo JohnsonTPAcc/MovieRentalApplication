@@ -9,11 +9,11 @@ using MovieRentalApplication.Server.Data;
 
 #nullable disable
 
-namespace MovieRentalApplication.Server.Data.Migrations
+namespace MovieRentalApplication.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240127181543_AddApplicationTables")]
-    partial class AddApplicationTables
+    [Migration("20240127215737_newdb")]
+    partial class newdb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -191,6 +191,20 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "ad2bcf0c-20db-474f-8407-5a6b159518ba",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = "bd2bcf0c-20db-474f-8407-5a6b159518bb",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -280,6 +294,13 @@ namespace MovieRentalApplication.Server.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "3781efa7-66dc-47f0-860f-e506d04102e4",
+                            RoleId = "ad2bcf0c-20db-474f-8407-5a6b159518ba"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -372,6 +393,26 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "3781efa7-66dc-47f0-860f-e506d04102e4",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "795ae2f0-efaf-48ec-92e7-8888bc6b7b24",
+                            Email = "admin@localhost.com",
+                            EmailConfirmed = false,
+                            FirstName = "Admin",
+                            LastName = "User",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@LOCALHOST.COM",
+                            NormalizedUserName = "ADMIN@LOCALHOST.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAED9tgEdyMP1gy2aT3CfqhKtaEXsy8BiRGdUEpagtL/pThNBoQ1gNkDyYpAUoLDrN4Q==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "ff695f44-31f7-4162-9271-a8ce89b44a28",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@localhost.com"
+                        });
                 });
 
             modelBuilder.Entity("MovieRentalApplication.Shared.Domain.Booking", b =>
@@ -441,6 +482,26 @@ namespace MovieRentalApplication.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedBy = "System",
+                            DateCreated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(8987),
+                            DateUpdated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(8999),
+                            Name = "SciFi",
+                            UpdatedBy = "System"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedBy = "System",
+                            DateCreated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9001),
+                            DateUpdated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9001),
+                            Name = "Horror",
+                            UpdatedBy = "System"
+                        });
                 });
 
             modelBuilder.Entity("MovieRentalApplication.Shared.Domain.Customer", b =>
@@ -503,6 +564,26 @@ namespace MovieRentalApplication.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Directors");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedBy = "System",
+                            DateCreated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9312),
+                            DateUpdated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9312),
+                            Name = "Christopher Nolan",
+                            UpdatedBy = "System"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedBy = "System",
+                            DateCreated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9314),
+                            DateUpdated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9314),
+                            Name = "John Carpenter",
+                            UpdatedBy = "System"
+                        });
                 });
 
             modelBuilder.Entity("MovieRentalApplication.Shared.Domain.Movie", b =>
@@ -533,6 +614,9 @@ namespace MovieRentalApplication.Server.Data.Migrations
 
                     b.Property<int>("RatingId")
                         .HasColumnType("int");
+
+                    b.Property<double>("RentalRate")
+                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -577,6 +661,26 @@ namespace MovieRentalApplication.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ratings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedBy = "System",
+                            DateCreated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9547),
+                            DateUpdated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9547),
+                            Name = "PG",
+                            UpdatedBy = "System"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedBy = "System",
+                            DateCreated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9548),
+                            DateUpdated = new DateTime(2024, 1, 28, 5, 57, 37, 412, DateTimeKind.Local).AddTicks(9549),
+                            Name = "PG 13",
+                            UpdatedBy = "System"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

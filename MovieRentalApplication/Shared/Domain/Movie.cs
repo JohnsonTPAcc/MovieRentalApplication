@@ -18,5 +18,7 @@ namespace MovieRentalApplication.Shared.Domain
 
         public int RatingId { get; set; }
         public virtual Rating? Rating { get; set; }
+
+        public double RentalRate { get; set; }
     }
 }

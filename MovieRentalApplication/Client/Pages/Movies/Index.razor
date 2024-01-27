@@ -5,6 +5,12 @@
 @using MovieRentalApplication.Shared.Domain
 
 <h3 class="card-title">Movies</h3>
+<a href="/movies/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Movies
+</a>
+<br />
+<br />
 @if (Movies == null)
 {
     <div class="alert alert-info">Loading Movies...</div>

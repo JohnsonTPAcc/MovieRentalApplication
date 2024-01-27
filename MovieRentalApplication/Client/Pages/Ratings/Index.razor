@@ -5,6 +5,10 @@
 @using MovieRentalApplication.Shared.Domain
 
 <h3 class="card-title">Movie Ratings</h3>
+<a href="/ratings/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Ratings
+</a>
 @if (Ratings == null)
 {
     <div class="alert alert-info">Loading Ratings...</div>
@@ -49,6 +53,15 @@ else
 
     async Task Delete(int ratingId)
     {
+        try
+        {
+            Ratings = await _client.GetFromJsonAsync<List<Rating>>(Endpoints.RatingsEndpoint);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching ratings: {ex.Message}");
+            // Optionally, set an error message in the UI
+        }
         if (Ratings != null)
         {
             var rating = Ratings.FirstOrDefault(r => r.Id == ratingId);

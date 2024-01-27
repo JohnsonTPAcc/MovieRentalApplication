@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MovieRentalApplication.Server.Data;
 
 #nullable disable
 
-namespace MovieRentalApplication.Server.Data.Migrations
+namespace MovieRentalApplication.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240127222618_updatedcustomer")]
+    partial class updatedcustomer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -396,7 +399,7 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = "3781efa7-66dc-47f0-860f-e506d04102e4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7feb4473-6eac-437f-ac87-0a352352d2d9",
+                            ConcurrencyStamp = "35ae060e-b6e3-442e-9b3a-ebaef5e39b03",
                             Email = "admin@localhost.com",
                             EmailConfirmed = false,
                             FirstName = "Admin",
@@ -404,9 +407,9 @@ namespace MovieRentalApplication.Server.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@LOCALHOST.COM",
                             NormalizedUserName = "ADMIN@LOCALHOST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA/iPa1KsD1osU4sx65lKAlbKtypTR7UYuNNxm2uZCJMZbxeL9sYd/Re9A3+yfTutQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMEtsTItEIg8faTW3pJ8FgM4Mnb6VQVcnDwHbYsBLYJex5Il+0l7wxCSond+8ACLsA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "845e4735-ae22-4ce7-abe6-086051c201f5",
+                            SecurityStamp = "eb526782-f98c-4061-a014-0ac726cee2ce",
                             TwoFactorEnabled = false,
                             UserName = "admin@localhost.com"
                         });
@@ -485,8 +488,8 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = 1,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8172),
-                            DateUpdated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8183),
+                            DateCreated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5350),
+                            DateUpdated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5364),
                             Name = "SciFi",
                             UpdatedBy = "System"
                         },
@@ -494,8 +497,8 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = 2,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8185),
-                            DateUpdated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8185),
+                            DateCreated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5366),
+                            DateUpdated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5366),
                             Name = "Horror",
                             UpdatedBy = "System"
                         });
@@ -525,6 +528,12 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdatedBy")
@@ -567,8 +576,8 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = 1,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8503),
-                            DateUpdated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8504),
+                            DateCreated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5716),
+                            DateUpdated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5716),
                             Name = "Christopher Nolan",
                             UpdatedBy = "System"
                         },
@@ -576,8 +585,8 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = 2,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8505),
-                            DateUpdated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8505),
+                            DateCreated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5718),
+                            DateUpdated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5718),
                             Name = "John Carpenter",
                             UpdatedBy = "System"
                         });
@@ -611,6 +620,9 @@ namespace MovieRentalApplication.Server.Data.Migrations
 
                     b.Property<int>("RatingId")
                         .HasColumnType("int");
+
+                    b.Property<double>("RentalRate")
+                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -661,8 +673,8 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = 1,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8687),
-                            DateUpdated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8688),
+                            DateCreated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5897),
+                            DateUpdated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5897),
                             Name = "PG",
                             UpdatedBy = "System"
                         },
@@ -670,8 +682,8 @@ namespace MovieRentalApplication.Server.Data.Migrations
                         {
                             Id = 2,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8689),
-                            DateUpdated = new DateTime(2024, 1, 28, 2, 42, 10, 465, DateTimeKind.Local).AddTicks(8690),
+                            DateCreated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5899),
+                            DateUpdated = new DateTime(2024, 1, 28, 6, 26, 17, 827, DateTimeKind.Local).AddTicks(5899),
                             Name = "PG 13",
                             UpdatedBy = "System"
                         });

@@ -1,0 +1,14 @@
+﻿@page "/directors/view/{id:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+<h3>View</h3>
+<FormComponent director="director" Disabled="true" />
+@code {
+ [Parameter] public int id { get; set; }
+ Director? director = new Director();
+ protected async override Task OnParametersSetAsync()
+ {
+ director = await
+_client.GetFromJsonAsync<Director>($"{Endpoints.DirectorsEndpoint}/{id}");
+ }
+}

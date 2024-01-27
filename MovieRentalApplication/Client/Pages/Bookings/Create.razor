@@ -1,0 +1,76 @@
+﻿@page "/bookings/create"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Create New Booking</h3>
+<hr />
+<br />
+
+<EditForm Model="@booking" OnValidSubmit="CreateBooking">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Movie:</label>
+        <InputSelect @bind-Value="booking.MovieId" class="form-control">
+            <option value="">-- Select Movie --</option>
+            @foreach (var movie in Movies)
+            {
+                <option value="@movie.Id">@movie.Title</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label>Customer:</label>
+        <InputSelect @bind-Value="booking.CustomerId" class="form-control">
+            <option value="">-- Select Customer --</option>
+            @foreach (var customer in Customers)
+            {
+                <option value="@customer.Id">@customer.FirstName @customer.LastName</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label>Date Out:</label>
+        <InputDate @bind-Value="booking.DateOut" class="form-control" />
+    </div>
+
+    @if (booking.Id > 0)
+    {
+        <div class="form-group">
+            <label>Date In:</label>
+            <InputDate @bind-Value="booking.DateIn" class="form-control" />
+            <ValidationMessage For="@(() => booking.DateIn)" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-success">Create</button>
+</EditForm>
+
+@code {
+    private Booking booking = new Booking();
+    private IList<Movie> Movies;
+    private IList<Customer> Customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Movies = await _client.GetFromJsonAsync<List<Movie>>(Endpoints.MoviesEndpoint);
+        Customers = await _client.GetFromJsonAsync<List<Customer>>(Endpoints.CustomersEndpoint);
+    }
+
+    private async Task CreateBooking()
+    {
+        var response = await _client.PostAsJsonAsync(Endpoints.BookingsEndpoint, booking);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/bookings");
+        }
+        else
+        {
+            // Handle the error (e.g., show an error message)
+        }
+    }
+}

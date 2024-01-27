@@ -1,0 +1,78 @@
+﻿@page "/customers/edit/{CustomerId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Edit Customer</h3>
+<hr />
+
+@if (customer == null)
+{
+    <div class="alert alert-warning">Loading customer...</div>
+}
+else
+{
+    <EditForm Model="@customer" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <InputText id="firstName" @bind-Value="customer.FirstName" class="form-control" />
+            <ValidationMessage For="@(() => customer.FirstName)" />
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <InputText id="lastName" @bind-Value="customer.LastName" class="form-control" />
+            <ValidationMessage For="@(() => customer.LastName)" />
+        </div>
+
+        <div class="form-group">
+            <label for="contactNumber">Contact Number:</label>
+            <InputText id="contactNumber" @bind-Value="customer.ContactNumber" class="form-control" />
+            <ValidationMessage For="@(() => customer.ContactNumber)" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address:</label>
+            <InputText id="email" type="email" @bind-Value="customer.EmailAddress" class="form-control" />
+            <ValidationMessage For="@(() => customer.EmailAddress)" />
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address:</label>
+            <InputText id="address" @bind-Value="customer.Address" class="form-control" />
+            <ValidationMessage For="@(() => customer.Address)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <BackToList Target="customers" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    private Customer? customer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}/{CustomerId}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await _client.PutAsJsonAsync($"{Endpoints.CustomersEndpoint}/{customer.Id}", customer);
+        if (response.IsSuccessStatusCode)
+        {
+            _navManager.NavigateTo("/customers");
+        }
+        else
+        {
+            // Handle errors here, such as displaying an error message
+        }
+    }
+}
