@@ -1,0 +1,63 @@
+﻿@page "/Ratings/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Movie Ratings</h3>
+@if (Ratings == null)
+{
+    <div class="alert alert-info">Loading Ratings...</div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rating in Ratings)
+            {
+                <tr>
+                    <td>@rating.Name</td>
+                    <td>
+                        <a href="/Ratings/view/@rating.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/Ratings/edit/@rating.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" onclick="@(()=>Delete(rating.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Rating>? Ratings;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Ratings = await _client.GetFromJsonAsync<List<Rating>>($"{Endpoints.RatingsEndpoint}");
+    }
+
+    async Task Delete(int ratingId)
+    {
+        if (Ratings != null)
+        {
+            var rating = Ratings.FirstOrDefault(r => r.Id == ratingId);
+            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete the rating named '{rating.Name}'?");
+            if (confirm)
+            {
+                await _client.DeleteAsync($"{Endpoints.RatingsEndpoint}/{ratingId}");
+                await OnInitializedAsync();
+            }
+        }
+    }
+}

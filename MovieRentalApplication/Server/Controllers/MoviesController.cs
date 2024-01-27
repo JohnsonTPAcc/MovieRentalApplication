@@ -30,7 +30,7 @@ namespace MovieRentalApplication.Server.Controllers
         //public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         public async Task<IActionResult> GetMovies()
         {
-            var Movies = await _unitOfWork.Movies.GetAll();
+            var Movies = await _unitOfWork.Movies.GetAll(includes: q => q.Include(x => x.Director).Include(x => x.Category).Include(x => x.Rating));
             return Ok(Movies);
         }
 

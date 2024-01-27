@@ -1,0 +1,63 @@
+﻿@page "/directors/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Movie Directors</h3>
+@if (Directors == null)
+{
+    <div class="alert alert-info">Loading Director...</div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var director in Directors)
+            {
+                <tr>
+                    <td>@director.Name</td>
+                    <td>
+                        <a href="/directors/view/@director.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/directors/edit/@director.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" onclick="@(()=>Delete(director.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Director>? Directors;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Directors = await _client.GetFromJsonAsync<List<Director>>($"{Endpoints.DirectorsEndpoint}");
+    }
+
+    async Task Delete(int directorId)
+    {
+        if (Directors != null)
+        {
+            var director = Directors.FirstOrDefault(d => d.Id == directorId);
+            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {director.Name}?");
+            if (confirm)
+            {
+                await _client.DeleteAsync($"{Endpoints.DirectorsEndpoint}/{directorId}");
+                await OnInitializedAsync();
+            }
+        }
+    }
+}
