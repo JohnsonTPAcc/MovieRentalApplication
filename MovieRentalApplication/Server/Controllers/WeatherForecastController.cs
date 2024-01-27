@@ -4,7 +4,7 @@ using MovieRentalApplication.Shared;
 
 namespace MovieRentalApplication.Server.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase

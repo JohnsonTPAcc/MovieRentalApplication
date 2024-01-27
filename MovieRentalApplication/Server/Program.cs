@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using MovieRentalApplication.Server.Data;
 using MovieRentalApplication.Server.Models;
 using Microsoft.AspNetCore.Identity;
+using MovieRentalApplication.Server.IRepository;
+using MovieRentalApplication.Server.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +26,7 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
