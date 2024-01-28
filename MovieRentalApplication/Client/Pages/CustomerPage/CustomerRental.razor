@@ -4,6 +4,8 @@
 @inject IJSRuntime js
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
+@using System.Text.Json;
+
 @using MovieRentalApplication.Shared.Domain
 
 <h3>Browse Movies to Rent</h3>
@@ -23,7 +25,7 @@ else
         {
             <div class="col-md-4">
                 <div class="card mb-4 shadow-sm">
-                    <img class="card-img-top" src="movie-poster-url" alt="Movie Poster">
+                    <img class="card-img-top" src="images/@($"{movie.Title}.jpg")" alt="Movie Poster">
                     <div class="card-body">
                         <p class="card-text">@movie.Title</p>
                         <div class="d-flex justify-content-between align-items-center">
@@ -57,7 +59,30 @@ else
         if (user.Identity?.IsAuthenticated == true)
         {
             var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            CurrentCustomer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}/{userId}");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                try
+                {
+                    CurrentCustomer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}/{userId}");
+                }
+                catch (JsonException jsonEx)
+                {
+                    // Log the exception, jsonEx.Message
+                    // Possibly the JSON format is not correct, or not matching the Customer class
+                }
+                catch (HttpRequestException httpEx)
+                {
+                    // Handle exceptions related to the HTTP request, httpEx.Message
+                    // This includes cases where the API endpoint is not found, is not accessible, or returns a non-success status code
+                    Console.WriteLine($"HTTP Request Error: {httpEx.Message}");
+                }
+                catch (Exception ex)
+                {
+                    // Handle other exceptions
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                }
+                // Other exception handling if necessary
+            }
         }
     }
 
