@@ -1,0 +1,94 @@
+﻿@page "/customer/rental"
+@inject HttpClient _client
+@using System.Security.Claims
+@inject IJSRuntime js
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@using MovieRentalApplication.Shared.Domain
+
+<h3>Browse Movies to Rent</h3>
+
+@if (Movies == null)
+{
+    <p>Loading movies...</p>
+}
+else if (Movies.Count == 0)
+{
+    <p>No movies available for rental.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var movie in Movies)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <img class="card-img-top" src="movie-poster-url" alt="Movie Poster">
+                    <div class="card-body">
+                        <p class="card-text">@movie.Title</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => RentMovie(movie)">Rent</button>
+                            </div>
+                            <small class="text-muted">@movie.RentalRate.ToString("C") per day</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Movie>? Movies;
+    private Customer? CurrentCustomer; // Nullable in case the customer is not found.
+
+    protected override async Task OnInitializedAsync()
+    {
+        Movies = await _client.GetFromJsonAsync<List<Movie>>($"{Endpoints.MoviesEndpoint}");
+        await FetchCurrentUser();
+    }
+
+    private async Task FetchCurrentUser()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            CurrentCustomer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}/{userId}");
+        }
+    }
+
+    private async Task RentMovie(Movie movie)
+    {
+        if (CurrentCustomer == null)
+        {
+            await js.InvokeVoidAsync("alert", "You must be logged in to rent a movie.");
+            return;
+        }
+
+        var confirmed = await js.InvokeAsync<bool>("confirm", $"Do you want to rent '{movie.Title}'?");
+        if (confirmed)
+        {
+            var booking = new Booking
+                {
+                    MovieId = movie.Id,
+                    CustomerId = CurrentCustomer.Id,
+                    DateOut = DateTime.Now,
+                };
+
+            var response = await _client.PostAsJsonAsync($"{Endpoints.BookingsEndpoint}", booking);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/booking/success");
+            }
+            else
+            {
+                await js.InvokeVoidAsync("alert", "Failed to rent the movie. Please try again.");
+            }
+        }
+    }
+}

@@ -1,0 +1,56 @@
+﻿@page "/bookings/view/{BookingId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3>Booking Details</h3>
+
+@if (booking == null)
+{
+    <p><em>Loading booking details...</em></p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-3">Date Out:</dt>
+        <dd class="col-sm-9">@booking.DateOut.ToString("yyyy-MM-dd")</dd>
+
+        <dt class="col-sm-3">Date In:</dt>
+        <dd class="col-sm-9">@booking.DateIn?.ToString("yyyy-MM-dd") ?? "Not returned yet"</dd>
+
+        <dt class="col-sm-3">Movie Title:</dt>
+        <dd class="col-sm-9">@movieTitle</dd>
+
+        <dt class="col-sm-3">Customer Name:</dt>
+        <dd class="col-sm-9">@customerName</dd>
+    </dl>
+}
+
+@code {
+    [Parameter]
+    public int BookingId { get; set; }
+
+    private Booking? booking;
+    private string? movieTitle;
+    private string? customerName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        booking = await _client.GetFromJsonAsync<Booking>($"api/bookings/{BookingId}");
+        if (booking != null)
+        {
+            if (booking.MovieId != 0)
+            {
+                var movie = await _client.GetFromJsonAsync<Movie>($"api/movies/{booking.MovieId}");
+                movieTitle = movie?.Title ?? "Title not found";
+            }
+
+            if (booking.CustomerId != 0)
+            {
+                var customer = await _client.GetFromJsonAsync<Customer>($"api/customers/{booking.CustomerId}");
+                customerName = customer != null ? $"{customer.FirstName} {customer.LastName}" : "Customer not found";
+            }
+        }
+    }
+}

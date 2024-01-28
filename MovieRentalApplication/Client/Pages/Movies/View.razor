@@ -1,0 +1,70 @@
+﻿@page "/movies/view/{MovieId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject IJSRuntime js
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3>Movie Details</h3>
+
+@if (movie == null)
+{
+    <p><em>Loading movie details...</em></p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-3">ID:</dt>
+        <dd class="col-sm-9">@movie.Id</dd>
+
+        <dt class="col-sm-3">Title:</dt>
+        <dd class="col-sm-9">@movie.Title</dd>
+
+        <dt class="col-sm-3">Description:</dt>
+        <dd class="col-sm-9">@movie.Description</dd>
+
+        <dt class="col-sm-3">Director:</dt>
+        <dd class="col-sm-9">@movie.Director?.Name ?? "Unknown"</dd>
+
+        <dt class="col-sm-3">Category:</dt>
+        <dd class="col-sm-9">@movie.Category?.Name ?? "Unknown"</dd>
+
+        <dt class="col-sm-3">Rating:</dt>
+        <dd class="col-sm-9">@movie.Rating?.Name ?? "Unknown"</dd>
+
+        <dt class="col-sm-3">Rental Rate:</dt>
+        <dd class="col-sm-9">@movie.RentalRate.ToString("C")</dd>
+    </dl>
+
+    <a href="/movies/edit/@movie.Id" class="btn btn-primary">Edit</a>
+    <button class="btn btn-danger" @onclick="DeleteMovie">Delete</button>
+}
+
+@code {
+    [Parameter]
+    public int MovieId { get; set; }
+
+    private Movie? movie;
+
+    protected override async Task OnInitializedAsync()
+    {
+        movie = await _client.GetFromJsonAsync<Movie>($"api/movies/{MovieId}");
+    }
+
+    private async Task DeleteMovie()
+    {
+        var confirmed = await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the movie '{movie?.Title}'?");
+        if (confirmed)
+        {
+            var response = await _client.DeleteAsync($"api/movies/{MovieId}");
+            if (response.IsSuccessStatusCode)
+            {
+                _navManager.NavigateTo("/movies");
+            }
+            else
+            {
+                // Handle the error
+            }
+        }
+    }
+}

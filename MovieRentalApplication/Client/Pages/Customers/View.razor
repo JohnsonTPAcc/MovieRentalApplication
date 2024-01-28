@@ -1,0 +1,68 @@
+﻿@page "/customers/view/{CustomerId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+@inject IJSRuntime js
+
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3>Customer Details</h3>
+
+@if (customer == null)
+{
+    <p><em>Loading customer details...</em></p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-3">ID:</dt>
+        <dd class="col-sm-9">@customer.Id</dd>
+
+        <dt class="col-sm-3">First Name:</dt>
+        <dd class="col-sm-9">@customer.FirstName</dd>
+
+        <dt class="col-sm-3">Last Name:</dt>
+        <dd class="col-sm-9">@customer.LastName</dd>
+
+        <dt class="col-sm-3">Contact Number:</dt>
+        <dd class="col-sm-9">@customer.ContactNumber</dd>
+
+        <dt class="col-sm-3">Email Address:</dt>
+        <dd class="col-sm-9">@customer.EmailAddress</dd>
+
+        <dt class="col-sm-3">Address:</dt>
+        <dd class="col-sm-9">@customer.Address</dd>
+    </dl>
+
+    <a href="/customers/edit/@customer.Id" class="btn btn-primary">Edit</a>
+    <button class="btn btn-danger" @onclick="DeleteCustomer">Delete</button>
+}
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    private Customer? customer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await _client.GetFromJsonAsync<Customer>($"api/customers/{CustomerId}");
+    }
+
+    private async Task DeleteCustomer()
+    {
+        var confirmed = await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the customer {customer?.FirstName} {customer?.LastName}?");
+        if (confirmed)
+        {
+            var response = await _client.DeleteAsync($"api/customers/{CustomerId}");
+            if (response.IsSuccessStatusCode)
+            {
+                _navManager.NavigateTo("/customers");
+            }
+            else
+            {
+                // Handle the error
+            }
+        }
+    }
+}

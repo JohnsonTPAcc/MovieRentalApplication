@@ -1,0 +1,60 @@
+﻿@page "/categories/view/{CategoryId:int}"
+@inject HttpClient _client
+@inject IJSRuntime js
+@inject NavigationManager _navManager
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3>Category Details</h3>
+
+@if (category == null)
+{
+    <p><em>Loading category details...</em></p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-3">ID:</dt>
+        <dd class="col-sm-9">@category.Id</dd>
+
+        <dt class="col-sm-3">Name:</dt>
+        <dd class="col-sm-9">@category.Name</dd>
+    </dl>
+
+    <a href="/categories/edit/@category.Id" class="btn btn-primary">Edit</a>
+    <button class="btn btn-danger" @onclick="DeleteCategory">Delete</button>
+}
+
+@code {
+    [Parameter]
+    public int CategoryId { get; set; }
+
+    private Category? category;
+
+    protected override async Task OnInitializedAsync()
+    {
+        category = await _client.GetFromJsonAsync<Category>($"api/categories/{CategoryId}");
+    }
+
+    private async Task DeleteCategory()
+    {
+        if (category == null) return;
+
+        // Confirm deletion with the user
+        bool confirmed = await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the category {category.Name}?");
+        if (confirmed)
+        {
+            // Send the delete request to the server
+            HttpResponseMessage response = await _client.DeleteAsync($"api/categories/{CategoryId}");
+            if (response.IsSuccessStatusCode)
+            {
+                // If successful, navigate back to the categories list
+                _navManager.NavigateTo("/categories");
+            }
+            else
+            {
+                // Handle errors here, such as displaying an error message
+            }
+        }
+    }
+    }

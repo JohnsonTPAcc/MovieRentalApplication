@@ -1,14 +1,66 @@
-﻿@page "/directors/view/{id:int}"
+﻿@page "/directors/view/{DirectorId:int}"
 @inject HttpClient _client
+@inject IJSRuntime js
 @inject NavigationManager _navManager
-<h3>View</h3>
-<FormComponent director="director" Disabled="true" />
+@attribute [Authorize]
+@using MovieRentalApplication.Shared.Domain
+
+<h3 class="card-title">Director Details</h3>
+
+@if (director == null)
+{
+    <div class="alert alert-info">Loading Director...</div>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-2">
+            ID:
+        </dt>
+        <dd class="col-sm-10">
+            @director.Id
+        </dd>
+        <dt class="col-sm-2">
+            Name:
+        </dt>
+        <dd class="col-sm-10">
+            @director.Name
+        </dd>
+    </dl>
+
+    <a href="/directors/edit/@director.Id" class="btn btn-warning">
+        <span class="oi oi-pencil"></span> Edit
+    </a>
+    <button class="btn btn-danger" @onclick="(() => Delete(director.Id))">
+        <span class="oi oi-trash"></span> Delete
+    </button>
+}
+
 @code {
- [Parameter] public int id { get; set; }
- Director? director = new Director();
- protected async override Task OnParametersSetAsync()
- {
- director = await
-_client.GetFromJsonAsync<Director>($"{Endpoints.DirectorsEndpoint}/{id}");
- }
+    [Parameter]
+    public int DirectorId { get; set; }
+
+    private Director? director;
+
+    protected override async Task OnInitializedAsync()
+    {
+        director = await _client.GetFromJsonAsync<Director>($"{Endpoints.DirectorsEndpoint}/{DirectorId}");
+    }
+
+    private async Task Delete(int directorId)
+    {
+        var confirmed = await js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this director?");
+        if (confirmed)
+        {
+            var response = await _client.DeleteAsync($"{Endpoints.DirectorsEndpoint}/{directorId}");
+            if (response.IsSuccessStatusCode)
+            {
+                _navManager.NavigateTo("/directors");
+            }
+            else
+            {
+                // Handle errors here, such as displaying an error message
+            }
+        }
+    }
 }

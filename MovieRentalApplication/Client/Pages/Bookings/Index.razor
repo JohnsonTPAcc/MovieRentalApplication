@@ -1,17 +1,22 @@
-﻿@page "/Bookings/"
+﻿@page "/bookings"
 @inject HttpClient _client
 @inject IJSRuntime js
 @attribute [Authorize]
 @using MovieRentalApplication.Shared.Domain
+@using MovieRentalApplication.Client.Static
 
 <h3 class="card-title">Movie Bookings</h3>
 <a href="/bookings/create" class="btn btn-secondary">
-    <span class="oi oi-plus"></span>
-    Create New Booking
+    <span class="oi oi-plus"></span> Create New Booking
 </a>
+
 @if (Bookings == null)
 {
     <div class="alert alert-info">Loading Bookings...</div>
+}
+else if (Bookings.Count == 0)
+{
+    <div class="alert alert-info">No bookings available.</div>
 }
 else
 {
@@ -30,21 +35,18 @@ else
             {
                 <tr>
                     <td>@booking.DateOut.ToString("yyyy-MM-dd")</td>
-                    <td>
-                        @(booking.DateIn != null ? (booking.DateIn.Value - booking.DateOut).TotalDays.ToString() : "To Be Determined")
-                    </td>
-
-                    <td>@booking.Movie?.Title</td>
-                    <td>@booking.Customer?.FirstName @booking.Customer?.LastName</td>
+                    <td>@(booking.DateIn.HasValue ? booking.DateIn.Value.ToString("yyyy-MM-dd") : "To Be Determined")</td>
+                    <td>@booking.MovieTitle</td>
+                    <td>@booking.CustomerFullName</td>
                     <td>
                         <a href="/bookings/view/@booking.Id" class="btn btn-primary">
-                            <span class="oi oi-book"></span>
+                            <span class="oi oi-book"></span> View
                         </a>
                         <a href="/bookings/edit/@booking.Id" class="btn btn-warning">
-                            <span class="oi oi-pencil"></span>
+                            <span class="oi oi-pencil"></span> Edit
                         </a>
-                        <button class="btn btn-danger" onclick="@(()=>Delete(booking.Id))">
-                            <span class="oi oi-delete"></span>
+                        <button class="btn btn-danger" @onclick="() => Delete(booking.Id)">
+                            <span class="oi oi-delete"></span> Delete
                         </button>
                     </td>
                 </tr>
@@ -52,25 +54,51 @@ else
         </tbody>
     </table>
 }
-@code {
-    private List<Booking>? Bookings;
 
-    protected async override Task OnInitializedAsync()
+@code {
+    private List<BookingViewModel>? Bookings;
+
+    protected override async Task OnInitializedAsync()
     {
-        Bookings = await _client.GetFromJsonAsync<List<Booking>>($"{Endpoints.BookingsEndpoint}");
+        await FetchBookings();
+    }
+
+    private async Task FetchBookings()
+    {
+        Bookings = await _client.GetFromJsonAsync<List<BookingViewModel>>(Endpoints.BookingsEndpoint);
+        StateHasChanged();
     }
 
     async Task Delete(int bookingId)
     {
-        if (Bookings != null)
+        var bookingToDelete = Bookings?.FirstOrDefault(b => b.Id == bookingId);
+        if (bookingToDelete != null)
         {
-            var booking = Bookings.FirstOrDefault(b => b.Id == bookingId);
-            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete this booking?");
+            var confirmMessage = $"Are you sure you want to delete the booking for '{bookingToDelete.MovieTitle}'?";
+            var confirm = await js.InvokeAsync<bool>("confirm", confirmMessage);
             if (confirm)
             {
-                await _client.DeleteAsync($"{Endpoints.BookingsEndpoint}/{bookingId}");
-                await OnInitializedAsync();
+                var response = await _client.DeleteAsync($"{Endpoints.BookingsEndpoint}/{bookingId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    Bookings.Remove(bookingToDelete);
+                    StateHasChanged(); // Update the UI
+                }
+                else
+                {
+                    // Handle errors here, such as displaying an error message
+                }
             }
         }
+    }
+
+    public class BookingViewModel
+    {
+        public int Id { get; set; }
+        public DateTime DateOut { get; set; }
+        public DateTime? DateIn { get; set; }
+        public string MovieTitle { get; set; }
+        public string CustomerFullName { get; set; }
+        // You can add other properties that you need for your view
     }
 }
