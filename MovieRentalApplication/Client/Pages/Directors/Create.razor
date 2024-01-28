@@ -6,7 +6,19 @@
 <hr />
 <br />
 
-<FormComponent ButtonText="Create Director" director="director"OnValidSubmit="@CreateDirector" />
+<EditForm Model="@director" OnValidSubmit="CreateDirector">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Name:</label>
+        <InputText @bind-Value="director.Name" class="form-control" />
+        <ValidationMessage For="@(() => director.Name)" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Create</button>
+    <BackToList Target="directors" />
+</EditForm>
 
 @code {
     private Director director = new Director();
