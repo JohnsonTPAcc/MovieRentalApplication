@@ -1,0 +1,25 @@
+﻿<!-- Pages/LandingPage.razor -->
+@page "/landingpage"
+@inject NavigationManager NavigationManager
+
+
+<h1>Welcome to Movie Rental</h1>
+<p>Discover and rent your favorite movies!</p>
+
+<section id="welcome">
+    <p class="welcome-message">Start your movie journey with us.</p>
+    <button @onclick="RedirectToLoginPage">Login</button>
+</section>
+
+<footer>
+    <p>&copy; 2024 Movie Rental Application</p>
+</footer>
+
+@code {
+    private void RedirectToLoginPage()
+    {
+        // Use NavigationManager to navigate to the Login Display page
+        NavigationManager.NavigateTo("/logindisplay");
+    }
+}
+
